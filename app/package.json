@@ -8,7 +8,8 @@
     "build": "electron-vite build",
     "preview": "set ELECTRON_RUN_AS_NODE= && electron-vite preview",
     "start": "set ELECTRON_RUN_AS_NODE= && electron .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dist": "electron-vite build && electron-builder --win --publish never"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
@@ -16,6 +17,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "electron": "^33.4.11",
+    "electron-builder": "^26.15.3",
     "electron-vite": "^3.0.0",
     "typescript": "^5.7.3",
     "vite": "^6.0.7"
@@ -26,5 +28,45 @@
   },
   "productName": "FE3H Localization Tool",
   "author": "Dmytro Bidlov («Little Bit» Team)",
-  "license": "MIT"
+  "license": "MIT",
+  "build": {
+    "appId": "team.littlebit.fe3h-localization-tool",
+    "productName": "FE3H Localization Tool",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "python",
+        "to": "python",
+        "filter": [
+          "**/*.py"
+        ]
+      },
+      {
+        "from": "python-runtime",
+        "to": "python-runtime"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "FE3H-Localization-Tool-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "FE3H-Localization-Tool-Portable-${version}.${ext}"
+    }
+  }
 }

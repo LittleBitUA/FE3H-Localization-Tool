@@ -1,5 +1,6 @@
 // Long-lived Python sidecar via stdin/stdout JSON-RPC (one JSON object per line).
 import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { app } from "electron";
 import type {
@@ -27,7 +28,14 @@ export class PythonBridge {
       ? resolve(process.resourcesPath, "python", "server.py")
       : resolve(__dirname, "..", "python", "server.py");
 
-    const pythonExe = process.env.FE3H_PYTHON ?? "python";
+    // Packaged builds ship their own embeddable CPython runtime so end
+    // users don't need Python installed. Dev falls back to PATH.
+    const bundledPython = app.isPackaged
+      ? resolve(process.resourcesPath, "python-runtime", "python.exe")
+      : resolve(__dirname, "..", "python-runtime", "python.exe");
+    const pythonExe =
+      process.env.FE3H_PYTHON ??
+      (existsSync(bundledPython) ? bundledPython : "python");
     this.proc = spawn(pythonExe, [scriptPath], {
       stdio: ["pipe", "pipe", "pipe"],
       env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUNBUFFERED: "1" },

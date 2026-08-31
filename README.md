@@ -1,45 +1,47 @@
 # FE3H Localization Tool
 
-Інструментарій для локалізації **Fire Emblem: Three Houses** (Nintendo Switch):
-екстракція ігрового тексту, редактор перекладу з портретами спікерів,
-реінсерт у бінарні формати гри та LayeredFS-деплой на емулятор чи консоль.
+**English** · [Українська](README.uk.md)
 
-Створено для проєкту української локалізації FE3H.
+A toolkit for localizing **Fire Emblem: Three Houses** (Nintendo Switch):
+game text extraction, a translation editor with speaker portraits, reinsertion
+into the game's binary formats and LayeredFS deployment to an emulator or
+console.
 
-**Автор:** Dmytro Bidlov («Little Bit» Team) · **Ліцензія:** MIT
+Built for the Ukrainian localization project of FE3H.
 
-> Інструмент не містить і не розповсюджує жодних ігрових ресурсів.
-> Працює виключно з вашим власним легальним дампом гри.
+**Author:** Dmytro Bidlov («Little Bit» Team) · **License:** MIT
+
+> This tool contains and distributes no game assets. It operates exclusively
+> on your own legally obtained game dump.
 
 ---
 
-## Можливості
+## Features
 
-- **Extract** — обхід усіх текстоносних файлів (DATA1 indexed entries +
-  path-based `patch1–4`) з класифікацією форматів і збиранням єдиного
-  `translation_bundle.txt` для перекладу. Дворівнева дедуплікація
-  (entry-кластери + повторювані рядки) — кожен рядок перекладається один раз.
-- **Редактор** — Electron GUI: список файлів, картки Original/Translation,
-  розпізнавання спікера з `[NNNN]`-маркерів scene-діалогів (портрети,
-  ім'я, voice-id), прев'ю в ігровому стилі, Ctrl+S, захист від втрати
-  незбережених змін.
-- **Apply** — багатопотоковий реінсерт bundle назад у формати гри з
-  автопоширенням перекладу на всі дублікати та відновленням технічних
-  маркерів; захист від типових помилок перекладачів (зайвий перенос рядка
-  перед voice-маркером тощо).
-- **Deploy** — генерація LayeredFS-оверлею (`atmosphere/contents/<TitleID>/romfs`)
-  з патчем INFO0/INFO2, автодеплой у Eden / Ryujinx з автозапуском гри.
-- **Шрифт** — патч G1T font-атласу + UTF8TBL-ремап для відмалювання літер,
-  відсутніх у вбудованому шрифті (Є/є), через редагування DDS у Photoshop.
-- **Текстури** — експорт/реінсерт multi-texture G1T (титульний екран, мапа
-  монастиря) для перекладу графічних написів.
-- **Прогрес** — точний лічильник перекладеного (порівняння з оригіналом
-  байт-у-байт, ігноруючи хвостові пробіли).
-- **Chunk-workflow** — розбиття bundle на порції для команди перекладачів
-  (`tools/split_bundle.py` / `tools/merge_bundle.py`) з жорсткою валідацією
-  маркерів при злитті.
+- **Extract** — walks every text-bearing file (DATA1 indexed entries +
+  path-based `patch1–4`), classifies the formats and produces a single
+  `translation_bundle.txt`. Two-level deduplication (entry clusters +
+  repeated strings) — every string is translated exactly once.
+- **Editor** — Electron GUI: file navigator, Original/Translation cards,
+  speaker recognition from the `[NNNN]` markers of scene dialogue (portraits,
+  names, voice ids), game-style preview, Ctrl+S, unsaved-changes guard.
+- **Apply** — multithreaded reinsertion of the bundle back into game formats
+  with automatic propagation of translations to all duplicates and technical
+  marker restoration; protects against typical translator mistakes (stray
+  newline before a voice marker, etc.).
+- **Deploy** — builds a LayeredFS overlay (`atmosphere/contents/<TitleID>/romfs`)
+  with an INFO0/INFO2 patch, auto-deploys to Eden / Ryujinx and launches the game.
+- **Font** — patches the G1T font atlas + UTF8TBL remap to render letters
+  missing from the built-in font (Є/є), via DDS editing in Photoshop.
+- **Textures** — export/reinsert of multi-texture G1T containers (title
+  screen, monastery map) for translating baked-in art text.
+- **Progress** — an accurate translated-strings counter (byte-level
+  comparison against the originals, ignoring trailing whitespace).
+- **Chunk workflow** — splits the bundle into portions for a translation team
+  (`tools/split_bundle.py` / `tools/merge_bundle.py`) with strict marker
+  validation on merge.
 
-## Архітектура
+## Architecture
 
 ```
 Renderer (React + TS)  ──IPC──→  Main (Electron)  ──stdio JSON-RPC──→  Python sidecar
@@ -49,86 +51,90 @@ Renderer (React + TS)  ──IPC──→  Main (Electron)  ──stdio JSON-RPC
 ```
 
 - UI: **electron-vite + React + TypeScript**
-- Формати: **Python 3.11+** (без зовнішніх залежностей)
-- Контракт RPC типізований у `app/shared/ipc.ts`
+- Formats: **Python 3.11+** (no external dependencies)
+- The RPC contract is typed in `app/shared/ipc.ts`
 
-## Формати (реалізовано в `app/python/formats/`)
+## Formats (implemented in `app/python/formats/`)
 
-| Формат | Файли | Примітки |
+| Format | Files | Notes |
 |---|---|---|
-| DATA0/DATA1 | архів гри | 32-байтні записи; chunked-zlib декомпресія |
-| TextS (`_str.bin`) | UI-тексти,支援-діалоги | UTF-8, збереження оригінального паддінгу |
-| SceneText | talk_scinario | `[NNNN]`-спікер + `＠NNNNNN` voice-маркери; строга валідація розкладки |
-| Caption / Credit | субтитри відео, титри | f32-таймінги (caption); verbatim round-trip незмінених записів |
-| msgdata / ScrData | 12-мовний контейнер | заміна окремого мовного слота |
-| INFO0/INFO2 | patch4 | накопичувальний оверлей індексованих модів |
-| G1T | текстури/шрифт | linear BC3, DDS-обмін із Photoshop |
+| DATA0/DATA1 | game archive | 32-byte records; chunked-zlib decompression |
+| TextS (`_str.bin`) | UI text, support dialogue | UTF-8, original padding preserved |
+| SceneText | talk_scinario | `[NNNN]` speaker + `＠NNNNNN` voice markers; strict layout validation |
+| Caption / Credit | video subtitles, credits | f32 timings (caption); verbatim round-trip of unchanged entries |
+| msgdata / ScrData | 12-language container | single language-slot replacement |
+| INFO0/INFO2 | patch4 | cumulative overlay of indexed mods |
+| G1T | textures/font | linear BC3, DDS interchange with Photoshop |
 
-Байтові розкладки звірені з 010-шаблонами спільноти **THRT**
-(Three Houses Recompilation Tools). Серіалізатори покриті round-trip
-тестами: `parse → serialize` має відтворювати оригінал байт-у-байт.
+Byte layouts are verified against the 010 templates published by the
+**[Three Houses Research Team](https://github.com/orgs/three-houses-research-team)**
+(THRT) modding community. The serializers are covered by round-trip tests:
+`parse → serialize` must reproduce the original bytes exactly.
 
-## Встановлення
+## Installation
 
 ```bash
 git clone https://github.com/LittleBitUA/FE3H-Localization-Tool
 cd FE3H-Localization-Tool/app
 npm install
-python tools/fetch_portraits.py        # портрети спікерів (опційно)
-npm run dev                            # запуск у dev-режимі
+python tools/fetch_portraits.py        # speaker portraits (optional)
+npm run dev                            # run in dev mode
 ```
 
-Вимоги: **Node 20+**, **Python 3.11+** у PATH (або env `FE3H_PYTHON`).
+Requirements: **Node 20+**, **Python 3.11+** on PATH (or env `FE3H_PYTHON`).
+Packaged releases ship their own Python runtime — see the
+[Releases](https://github.com/LittleBitUA/FE3H-Localization-Tool/releases) page.
 
-### Конфігурація
+### Configuration
 
-Скопіюйте `fe3h-tool.config.example.json` → `fe3h-tool.config.json` у корені
-репозиторію і вкажіть свої шляхи (файл не комітиться):
+Copy `fe3h-tool.config.example.json` → `fe3h-tool.config.json` in the repo
+root and fill in your paths (the file is never committed):
 
-| Ключ | Призначення |
+| Key | Purpose |
 |---|---|
-| `title_id` | TitleID гри для LayeredFS (типово FE3H) |
-| `eden_exe`, `ryujinx_exe` | автозапуск емулятора після деплою |
-| `game_image` | ваш дамп гри (.nsp/.xci) для автозапуску |
-| `reference_mods_dir` | опційно: `mods/` наявного перекладу-референсу як фільтр «перекладабельних» entry |
-| `names_json` | опційно: мапінг index→ім'я файлу (ThreeHousesFileNames.json з THRT) |
+| `title_id` | game TitleID for LayeredFS (defaults to FE3H) |
+| `eden_exe`, `ryujinx_exe` | emulator auto-launch after deploy |
+| `game_image` | your game dump (.nsp/.xci) for auto-launch |
+| `reference_mods_dir` | optional: a `mods/` folder of an existing reference translation, used as a "translatable entries" filter |
+| `names_json` | optional: index→file-name mapping (ThreeHousesFileNames.json from THRT) |
 
-### Дамп гри
+### Game dump
 
-Очікувана структура: `<romfs>/DATA0.bin + DATA1.bin + patch1..4/`
-(повний дамп RomFS з вашої консолі або емулятора).
+Expected layout: `<romfs>/DATA0.bin + DATA1.bin + patch1..4/`
+(a full RomFS dump from your console or emulator).
 
-## Робочий процес
+## Workflow
 
-1. **Open dump…** → вкажіть `romfs/`; **Set project…** → робоча тека проєкту.
-2. **Scan patch + Scan DATA1** → список усіх текстоносних файлів.
-3. **Extract** → `project/translation_bundle.txt` (повторний Extract зливає
-   з наявним — переклади не губляться).
-4. Переклад: прямо в редакторі (по файлах) або через bundle/чанки.
-5. **Apply bundle** → реінсерт у `project/romfs/`.
-6. **Deploy** → build LayeredFS + копія в емулятор.
+1. **Open dump…** → point at `romfs/`; **Set project…** → project folder.
+2. **Scan patch + Scan DATA1** → the list of all text-bearing files.
+3. **Extract** → `project/translation_bundle.txt` (re-running Extract merges
+   with the existing bundle — translations are never lost).
+4. Translate: directly in the editor (per file) or via the bundle/chunks.
+5. **Apply bundle** → reinsertion into `project/romfs/`.
+6. **Deploy** → LayeredFS build + copy to the emulator.
 
-### Командний переклад через чанки
+### Team translation via chunks
 
 ```bash
 python tools/split_bundle.py     # bundle → chunks/chunk_NN_<topic>.txt + _manifest.json
-# … переклад чанків …
-python tools/merge_bundle.py     # chunks → bundle (жорстка валідація #N-маркерів)
+# … chunks get translated …
+python tools/merge_bundle.py     # chunks → bundle (strict #N marker validation)
 ```
 
-## Тести
+## Tests
 
 ```bash
 cd app/python
-python -m unittest discover -s tests            # юніт-тести форматів
+python -m unittest discover -s tests            # format unit tests
 FE3H_TEST_ROMFS=/path/to/romfs \
-python -m unittest discover -s tests            # + round-trip по реальному дампу
+python -m unittest discover -s tests            # + round-trip against a real dump
 ```
 
-Round-trip тести — головна страховка: будь-який дрейф серіалізатора
-історично означав infinite-loading у грі.
+The round-trip tests are the main safety net: any serializer drift has
+historically meant infinite-loading in game.
 
-## Подяки
+## Acknowledgements
 
-- Спільноті **THRT** за 010-шаблони форматів і мапінг імен файлів.
-- Fire Emblem wiki за довідкові матеріали.
+- The **[Three Houses Research Team](https://github.com/orgs/three-houses-research-team)**
+  community, for the 010 format templates and the file-name mapping.
+- The Fire Emblem wiki, for reference material.

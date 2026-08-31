@@ -6,6 +6,7 @@
 
 !/.gitignore
 !/README.md
+!/README.uk.md
 !/LICENSE
 !/fe3h-tool.config.example.json
 !/app
@@ -34,3 +35,8 @@ app/python/*.png
 app/python/*.g1t
 app/python/*.rar
 app/python/*.dds
+
+# ---- packaging (release artifacts + bundled runtime are not sources) ----
+app/python-runtime/
+app/release/
+app/build-icon.png

@@ -1,0 +1,36 @@
+# ---- whitelist: only the tool goes public ----
+# Everything at the repo root is ignored by default; translation work,
+# game dumps, reference material and personal folders never leave this
+# machine. Explicitly un-ignore the published parts below.
+/*
+
+!/.gitignore
+!/README.md
+!/LICENSE
+!/fe3h-tool.config.example.json
+!/app
+!/tools
+
+# ---- machine-local config (never commit) ----
+fe3h-tool.config.json
+
+# ---- app ----
+app/node_modules/
+app/dist/
+app/dist-electron/
+app/*.log
+# wiki-fetched images — recreate with tools/fetch_portraits.py
+app/src/public/portraits/
+
+# ---- python ----
+__pycache__/
+*.pyc
+
+# ---- tools: third-party reference payloads stay local ----
+tools/references/
+
+# ---- debug artifacts (font/texture experiments) ----
+app/python/*.png
+app/python/*.g1t
+app/python/*.rar
+app/python/*.dds

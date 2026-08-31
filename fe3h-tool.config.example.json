@@ -1,0 +1,8 @@
+{
+  "title_id": "010055D009F78000",
+  "eden_exe": "C:/path/to/eden.exe",
+  "ryujinx_exe": "C:/path/to/Ryujinx.exe",
+  "game_image": "C:/path/to/Fire Emblem Three Houses.nsp",
+  "reference_mods_dir": "",
+  "names_json": "C:/path/to/ThreeHousesFileNames.json"
+}
